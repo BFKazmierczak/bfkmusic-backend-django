@@ -1,3 +1,2 @@
 .venv
-
-./bfkmusic/bfkmusic/settings.py
+.env
