@@ -10,14 +10,12 @@ class ChoiceType(DjangoObjectType):
     class Meta:
         model = Choice
         interfaces = (graphene.relay.Node,)
-        exclude = ()
 
 
 class QuestionType(DjangoObjectType):
     class Meta:
         model = Question
         interfaces = (graphene.relay.Node,)
-        exclude = ()
 
 
 class QuestionFilter(FilterSet):
@@ -32,7 +30,7 @@ class Query(graphene.ObjectType):
     all_questions = DjangoFilterConnectionField(
         QuestionType, filterset_class=QuestionFilter
     )
-    all_choices = DjangoFilterConnectionField(ChoiceType)
+    all_choices = graphene.List(ChoiceType)
 
 
 schema = graphene.Schema(query=Query)
