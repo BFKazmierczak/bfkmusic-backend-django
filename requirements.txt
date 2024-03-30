@@ -1,3 +1,7 @@
 Django==5.0.3
+django-filter==24.2
+graphene==3.3
+graphene-django==3.2.0
 psycopg==3.1.18
 psycopg-binary==3.1.18
+python-dotenv==1.0.1
