@@ -1,5 +1,8 @@
 import jwt
 import traceback
+import hashlib
+import base64
+from datetime import datetime, timedelta
 
 from django.utils.functional import SimpleLazyObject
 from django.utils.deprecation import MiddlewareMixin
@@ -11,12 +14,26 @@ settings = LazySettings()
 
 
 def make_jwt(user: User):
+    expiration_date = datetime.now() + timedelta(hours=1)
 
     payload = {
-        "username": user.username,
-        "first_name": user.first_name,
-        "last_name": user.last_name,
+        "iss": "bfkmusic",
+        "exp": expiration_date,
+        "context": {
+            "username": user.username,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "groups": [],
+        },
     }
+
+    jti_hash = hashlib.sha256(payload.__str__().encode("utf-8")).digest()
+
+    payload["jti"] = base64.b64encode(jti_hash).__str__()
+
+    secret = settings.JWT_SECRET
+    if not isinstance(secret, str):
+        raise Exception("Incorrect jwt secret")
 
     encoded = jwt.encode(payload, settings.JWT_SECRET, algorithm="HS256")
 

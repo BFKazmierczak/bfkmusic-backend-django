@@ -3,9 +3,6 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth import get_user_model
 
 
-# def jwt_required
-
-
 class CustomAuthBackend(ModelBackend):
     def authenticate(self, request, username=None, password=None, **kwargs):
 
