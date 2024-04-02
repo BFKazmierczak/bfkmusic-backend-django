@@ -54,9 +54,12 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "core_api.auth.jwt_middleware.JWTAuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+JWT_SECRET = os.getenv("JWT_SECRET")
 
 ROOT_URLCONF = "bfkmusic.urls"
 
@@ -92,6 +95,8 @@ DATABASES = {
         "PORT": os.getenv("DB_PORT"),
     }
 }
+
+AUTHENTICATION_BACKENDS = ["core_api.auth.custom_auth.CustomAuthBackend"]
 
 
 # Password validation
