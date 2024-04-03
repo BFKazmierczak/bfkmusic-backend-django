@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import permission_required, login_required
 
 from core_api.auth.decorators import auth_required, has_permission
-from core_api.auth.jwt_middleware import make_jwt
+from core_api.auth.jwt_middleware import JWTAuthenticationMiddleware, make_jwt
 from core_api.models import Audio, Song
 from core_api.objects.objects import SongType
 
@@ -15,6 +15,8 @@ from graphene_file_upload.scalars import Upload
 from django.core.files.uploadedfile import TemporaryUploadedFile
 
 from django.core.files.storage import FileSystemStorage
+
+from django_redis import get_redis_connection
 
 
 class UserRegister(graphene.Mutation):
@@ -63,6 +65,27 @@ class UserLogin(graphene.Mutation):
         token = make_jwt(user)
 
         return UserLogin(token=token)
+
+
+class UserLogout(graphene.Mutation):
+    success = graphene.Field(graphene.Boolean)
+
+    @auth_required
+    def mutate(self, info, **kwargs):
+
+        token = JWTAuthenticationMiddleware.get_jwt_user(info.context)["decoded_token"]
+
+        expires = token["exp"]
+
+        try:
+            redis = get_redis_connection()
+            redis.hset(
+                f"token:{token['jti']}", mapping={"revoked": "true", "expires": expires}
+            )
+        except Exception as e:
+            raise GraphQLError(e)
+
+        return UserLogout(success=True)
 
 
 class SongCreate(graphene.Mutation):

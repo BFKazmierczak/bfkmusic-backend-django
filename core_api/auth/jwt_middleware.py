@@ -1,3 +1,5 @@
+from ast import Dict
+from graphql import GraphQLError
 import jwt
 import traceback
 import hashlib
@@ -9,6 +11,8 @@ from django.utils.deprecation import MiddlewareMixin
 from django.contrib.auth.models import AnonymousUser, User
 from django.conf import LazySettings
 from django.contrib.auth.middleware import get_user
+
+from django_redis import get_redis_connection
 
 settings = LazySettings()
 
@@ -42,7 +46,9 @@ def make_jwt(user: User):
 
 class JWTAuthenticationMiddleware(MiddlewareMixin):
     def process_request(self, request):
-        request.user = SimpleLazyObject(lambda: self.__class__.get_jwt_user(request))
+        request.user = SimpleLazyObject(
+            lambda: self.__class__.get_jwt_user(request)["user"]
+        )
 
     @staticmethod
     def get_jwt_user(request):
@@ -51,19 +57,27 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
             return user_jwt
         token = request.META.get("HTTP_AUTHORIZATION", None)
 
-        print(f"Token: {token}")
-
-        user_jwt = AnonymousUser()
+        user = AnonymousUser()
         if token is not None:
             try:
                 user_jwt = jwt.decode(token, settings.JWT_SECRET, algorithms="HS256")
 
-                print(f"JWT: {user_jwt}")
+                jti = user_jwt["jti"]
 
-                user_jwt = User.objects.get(username=user_jwt["username"])
-                print(f"Found user: {user_jwt}")
-            except Exception as e:  # NoQA
+                redis = get_redis_connection()
+                revoked_token: Dict = redis.hgetall(f"token:{jti}")
+
+                if (
+                    revoked_token is not None
+                    and revoked_token.get(b"revoked") == b"true"
+                ):
+                    raise GraphQLError("Your token had been revoked")
+
+                user = User.objects.get(username=user_jwt["context"]["username"])
+            except GraphQLError as e:
+                raise GraphQLError(e.message)
+            except Exception as e:
                 traceback.print_exc()
+                raise GraphQLError(e)
 
-        print(f"Is authenticated?: {user_jwt.is_authenticated}")
-        return user_jwt
+        return {"user": user, "decoded_token": user_jwt}
