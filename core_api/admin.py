@@ -1,3 +1,6 @@
 from django.contrib import admin
+from .models import Audio, Comment, Song
 
-# Register your models here.
+admin.site.register(Audio)
+admin.site.register(Comment)
+admin.site.register(Song)

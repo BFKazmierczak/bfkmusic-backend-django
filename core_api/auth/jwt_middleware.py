@@ -71,7 +71,7 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
     def get_jwt_user(request):
         user_jwt = get_user(request)
         if user_jwt.is_authenticated:
-            return user_jwt
+            return {"user": user_jwt}
         token = request.META.get("HTTP_AUTHORIZATION", None)
 
         user = AnonymousUser()
