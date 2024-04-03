@@ -5,6 +5,7 @@ import traceback
 import hashlib
 import base64
 from datetime import datetime, timedelta
+from time import time
 
 from django.utils.functional import SimpleLazyObject
 from django.utils.deprecation import MiddlewareMixin
@@ -39,9 +40,25 @@ def make_jwt(user: User):
     if not isinstance(secret, str):
         raise Exception("Incorrect jwt secret")
 
-    encoded = jwt.encode(payload, settings.JWT_SECRET, algorithm="HS256")
+    encoded = jwt.encode(payload, secret, algorithm="HS256")
 
     return encoded
+
+
+def revoke_jwt(token: str):
+    token_key = f"token:{token['jti']}"
+    token_expires = token["exp"]
+
+    expire_ts = round(int(token_expires) - time())
+
+    try:
+        redis = get_redis_connection()
+        redis.hset(token_key, mapping={"revoked": "true"})
+        redis.expire(token_key, expire_ts)
+    except Exception as e:
+        return False
+
+    return True
 
 
 class JWTAuthenticationMiddleware(MiddlewareMixin):
