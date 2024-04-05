@@ -69,16 +69,18 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
 
     @staticmethod
     def get_jwt_user(request):
-        user_jwt = get_user(request)
-        if user_jwt.is_authenticated:
-            return {"user": user_jwt}
+        user = get_user(request)
         token = request.META.get("HTTP_AUTHORIZATION", None)
+
+        if user.is_authenticated and token is None:
+            return {"user": user, "decoded_token": None}
+
+        user_jwt = None
 
         user = AnonymousUser()
         if token is not None:
             try:
                 user_jwt = jwt.decode(token, settings.JWT_SECRET, algorithms="HS256")
-
                 jti = user_jwt["jti"]
 
                 redis = get_redis_connection()

@@ -1,6 +1,7 @@
 from functools import wraps
 
 from django.contrib.auth.models import User
+from django.contrib.auth import get_backends
 
 from graphql import GraphQLError
 
@@ -22,15 +23,23 @@ def has_permission(perm: str):
     def decorator(func):
         @wraps(func)
         def wrapper(self, info, **kwargs):
-            print(f"checking for: {perm}")
-
             user = info.context.user
             if not user.is_authenticated:
                 raise GraphQLError("This action requires logging in")
 
             user: User = user
 
-            if not user.has_perm(perm):
+            group_has_perm = False
+            for group in user.groups.all():
+                if group_has_perm is True:
+                    break
+
+                for permission in group.permissions.all():
+                    if permission.codename == perm:
+                        group_has_perm = True
+                        break
+
+            if not user.has_perm(perm, user) and group_has_perm is False:
                 raise GraphQLError("Permission denied")
 
             func(self, info, **kwargs)

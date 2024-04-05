@@ -1,7 +1,7 @@
 import graphene
 from graphene_django import DjangoObjectType
 
-from core_api.models import Audio, Comment, Song
+from core_api.models import Audio, Comment, Song, UserLibrary
 from django.contrib.auth.models import User
 
 
@@ -30,3 +30,9 @@ class UserType(DjangoObjectType):
     class Meta:
         model = User
         only_fields = ("id", "username", "first_name", "last_name", "email")
+
+
+class UserLibraryType(DjangoObjectType):
+    class Meta:
+        model = UserLibrary
+        interfaces = (graphene.relay.Node,)

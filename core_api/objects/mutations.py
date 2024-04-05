@@ -83,6 +83,26 @@ class UserLogout(graphene.Mutation):
         return UserLogout(success=success)
 
 
+class SongAddToLibrary(graphene.Mutation):
+    class Arguments:
+        song_ids = graphene.List(graphene.ID, required=True)
+
+    success = graphene.Field(graphene.Boolean)
+
+    @auth_required
+    @has_permission("add_to_library")
+    def mutate(self, info, song_ids, **kwargs):
+
+        user = JWTAuthenticationMiddleware.get_jwt_user(info.context)["user"]
+
+        if not isinstance(user, User):
+            raise GraphQLError("An error occured while trying to obtain user's data.")
+
+        print(user.library)
+
+        return SongAddToLibrary(success=True)
+
+
 class SongCreate(graphene.Mutation):
     class Arguments:
         name = graphene.String(required=True)

@@ -10,7 +10,7 @@ class Audio(models.Model):
 
 class Song(models.Model):
     class Meta:
-        permissions = [("create_song", "Can create a song")]
+        permissions = [("add_to_library", "Can add a song to library")]
 
     published_at = models.DateField()
     name = models.CharField(max_length=128)
@@ -24,3 +24,8 @@ class Comment(models.Model):
     user = models.ForeignKey(User, related_name="comments", on_delete=models.CASCADE)
     time_range = models.CharField(max_length=50)
     song = models.ForeignKey(Song, related_name="comments", on_delete=models.CASCADE)
+
+
+class UserLibrary(models.Model):
+    songs = models.ManyToManyField(Song)
+    user = models.OneToOneField(User, related_name="library", on_delete=models.CASCADE)
