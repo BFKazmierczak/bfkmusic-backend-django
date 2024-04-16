@@ -6,6 +6,14 @@ class Audio(models.Model):
     duration = models.FloatField(default=None)
     waveform = models.JSONField(default=None)
     file = models.FileField(upload_to="songs/")
+    song = models.ForeignKey(
+        "core_api.Song",
+        related_name="audio_files",
+        blank=True,
+        null=True,
+        default=None,
+        on_delete=models.CASCADE,
+    )
 
 
 class Song(models.Model):
@@ -16,7 +24,10 @@ class Song(models.Model):
     name = models.CharField(max_length=128)
     description = models.CharField(max_length=500, default=None)
     non_owner_visible = models.BooleanField(default=True)
-    audio_files = models.ManyToManyField(Audio)
+
+    @property
+    def is_favorite(self):
+        return self.favorited_by.exists()
 
 
 class Comment(models.Model):
@@ -29,3 +40,10 @@ class Comment(models.Model):
 class UserLibrary(models.Model):
     songs = models.ManyToManyField(Song)
     user = models.OneToOneField(User, related_name="library", on_delete=models.CASCADE)
+
+
+class UserFavorite(models.Model):
+    user = models.ForeignKey(User, related_name="favorites", on_delete=models.CASCADE)
+    song = models.ForeignKey(
+        Song, related_name="favorited_by", on_delete=models.CASCADE
+    )

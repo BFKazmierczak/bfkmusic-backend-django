@@ -19,6 +19,12 @@ class SongType(DjangoObjectType):
     audio_files = graphene.List("core_api.objects.objects.AudioType")
     comments = graphene.List("core_api.objects.objects.CommentType")
 
+    def resolve_audio_files(self, info):
+        return self.audio_files.all()
+
+    def resolve_comments(self, info):
+        return self.comments.all()
+
 
 class CommentType(DjangoObjectType):
     class Meta:
