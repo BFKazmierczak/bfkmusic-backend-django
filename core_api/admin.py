@@ -1,5 +1,9 @@
 from django.contrib import admin
-from .models import Audio, Comment, Song
+from .models import Audio, Comment, Song, UserFavorite
+
+
+class UserFavoriteAdmin(admin.ModelAdmin):
+    list_display = ("user", "song")
 
 
 class AudioInline(admin.TabularInline):
@@ -14,3 +18,4 @@ class SongAdmin(admin.ModelAdmin):
 
 admin.site.register(Audio)
 admin.site.register(Comment)
+admin.site.register(UserFavorite, UserFavoriteAdmin)

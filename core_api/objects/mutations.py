@@ -11,13 +11,15 @@ from core_api.auth.jwt_middleware import (
     make_jwt,
     revoke_jwt,
 )
-from core_api.models import Audio, Song
+from core_api.models import Audio, Song, UserFavorite
 from core_api.objects.objects import SongType
 
 from graphene_file_upload.scalars import Upload
 from django.core.files.uploadedfile import TemporaryUploadedFile
 
 from django.core.files.storage import FileSystemStorage
+
+from core_api.utils.utils import get_object_id
 
 
 class UserRegister(graphene.Mutation):
@@ -85,23 +87,24 @@ class UserLogout(graphene.Mutation):
 
 class SongAddToFavorites(graphene.Mutation):
     class Arguments:
-        song_id = graphene.List(graphene.ID, required=True)
+        song_id = graphene.ID(required=True)
 
     success = graphene.Boolean()
 
     @auth_required
-    @has_permission("add_to_library")
+    @has_permission("add_to_favorites")
     def mutate(self, info, song_id, **kwargs):
 
         user = JWTAuthenticationMiddleware.get_jwt_user(info.context)["user"]
 
-        # if not isinstance(user, User):
-        #     raise GraphQLError("An error occured while trying to obtain user's data.")
+        song_id = get_object_id(song_id)
 
-        # song = Song.objects.filter(id=)
+        song = Song.objects.filter(id=song_id).first()
 
-        print(user)
-        print(user.favorites)
+        if not song:
+            raise GraphQLError("There's no song with given ID")
+
+        UserFavorite.objects.create(user=user, song=song).save()
 
         return SongAddToFavorites(success=True)
 

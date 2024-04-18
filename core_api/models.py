@@ -18,7 +18,7 @@ class Audio(models.Model):
 
 class Song(models.Model):
     class Meta:
-        permissions = [("add_to_library", "Can add a song to library")]
+        permissions = [("add_to_favorites", "Can add a song to favorites")]
 
     published_at = models.DateField()
     name = models.CharField(max_length=128)
