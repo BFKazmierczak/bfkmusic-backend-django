@@ -1,7 +1,6 @@
 from functools import wraps
 
 from django.contrib.auth.models import User
-from django.contrib.auth import get_backends
 
 from graphql import GraphQLError
 
@@ -9,7 +8,6 @@ from graphql import GraphQLError
 def auth_required(func):
     @wraps(func)
     def wrapper(self, info, **kwargs):
-
         request = info.context
         if not request.user.is_authenticated:
             raise GraphQLError("This action requires logging in")
