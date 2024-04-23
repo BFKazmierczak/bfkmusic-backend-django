@@ -18,6 +18,7 @@ class Audio(models.Model):
 
 class Song(models.Model):
     class Meta:
+        ordering = ["published_at"]
         permissions = [("add_to_favorites", "Can add a song to favorites")]
 
     published_at = models.DateField()

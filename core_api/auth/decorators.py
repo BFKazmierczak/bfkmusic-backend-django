@@ -12,7 +12,7 @@ def auth_required(func):
         if not request.user.is_authenticated:
             raise GraphQLError("This action requires logging in")
 
-        func(self, info, **kwargs)
+        return func(self, info, **kwargs)
 
     return wrapper
 
