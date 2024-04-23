@@ -39,6 +39,9 @@ class Comment(models.Model):
 
 
 class UserLibrary(models.Model):
+    class Meta:
+        verbose_name_plural = "User libraries"
+
     songs = models.ManyToManyField(Song)
     user = models.OneToOneField(User, related_name="library", on_delete=models.CASCADE)
 
