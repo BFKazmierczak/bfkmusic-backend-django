@@ -42,7 +42,7 @@ class UserLibrary(models.Model):
     class Meta:
         verbose_name_plural = "User libraries"
 
-    songs = models.ManyToManyField(Song)
+    songs = models.ManyToManyField(Song, blank=True)
     user = models.OneToOneField(User, related_name="library", on_delete=models.CASCADE)
 
 

@@ -6,6 +6,10 @@ class UserFavoriteAdmin(admin.ModelAdmin):
     list_display = ("user", "song")
 
 
+class UserLibraryAdmin(admin.ModelAdmin):
+    filter_horizontal = ("songs",)
+
+
 class AudioInline(admin.TabularInline):
     model = Audio
     extra = 0
@@ -19,4 +23,4 @@ class SongAdmin(admin.ModelAdmin):
 admin.site.register(Audio)
 admin.site.register(Comment)
 admin.site.register(UserFavorite, UserFavoriteAdmin)
-admin.site.register(UserLibrary)
+admin.site.register(UserLibrary, UserLibraryAdmin)
