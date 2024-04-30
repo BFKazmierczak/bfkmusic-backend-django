@@ -49,6 +49,14 @@ class ErrorEnum(graphene.Enum):
         },
     }
 
+    NOT_THE_OWNER = {
+        "message": "No permission to modify this object",
+        "extensions": {
+            "code": "NOT_THE_OWNER",
+            "toast": True,
+        },
+    }
+
 
 class CustomGraphQLError(GraphQLError):
     def __init__(self, error: ErrorEnum) -> None:
