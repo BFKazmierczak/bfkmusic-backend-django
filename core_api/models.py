@@ -2,7 +2,15 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
-class Audio(models.Model):
+class TimeStampModel(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+
+class Audio(TimeStampModel):
     duration = models.FloatField(default=None)
     waveform = models.JSONField(default=None)
     file = models.FileField(upload_to="songs/")
@@ -16,12 +24,12 @@ class Audio(models.Model):
     )
 
 
-class Song(models.Model):
+class Song(TimeStampModel):
     class Meta:
         ordering = ["published_at"]
         permissions = [("add_to_favorites", "Can add a song to favorites")]
 
-    published_at = models.DateField()
+    published_at = models.DateTimeField(default=None)
     name = models.CharField(max_length=128)
     description = models.CharField(max_length=500, default=None)
     non_owner_visible = models.BooleanField(default=True)
@@ -31,7 +39,7 @@ class Song(models.Model):
         return self.favorited_by.exists()
 
 
-class Comment(models.Model):
+class Comment(TimeStampModel):
     content = models.CharField(max_length=1000)
     user = models.ForeignKey(User, related_name="comments", on_delete=models.CASCADE)
     time_range = models.CharField(max_length=50)
