@@ -19,6 +19,7 @@ from django.core.files.uploadedfile import TemporaryUploadedFile
 
 from django.core.files.storage import FileSystemStorage
 
+from core_api.utils.error_handling import CustomGraphQLError, ErrorEnum
 from core_api.utils.utils import get_object_id
 
 
@@ -41,9 +42,9 @@ class UserRegister(graphene.Mutation):
         username_taken = User.objects.filter(username=new_username).exists()
 
         if email_taken is True:
-            raise GraphQLError("This email is taken")
+            raise CustomGraphQLError(ErrorEnum.EMAIL_TAKEN)
         if username_taken is True:
-            raise GraphQLError("This username is taken")
+            raise CustomGraphQLError(ErrorEnum.USERNAME_TAKEN)
 
         new_user = User.objects.create_user(**kwargs)
         new_user.save()
@@ -63,7 +64,7 @@ class UserLogin(graphene.Mutation):
 
         user = authenticate(**kwargs)
         if not user:
-            raise GraphQLError("Incorrect credentials")
+            raise CustomGraphQLError(ErrorEnum.BAD_CREDENTIALS)
 
         token = make_jwt(user)
 
@@ -95,14 +96,14 @@ class SongAddToFavorites(graphene.Mutation):
     @has_permission("add_to_favorites")
     def mutate(self, info, song_id, **kwargs):
 
-        user = JWTAuthenticationMiddleware.get_jwt_user(info.context)["user"]
+        user = info.context.user
 
         song_id = get_object_id(song_id)
 
         song = Song.objects.filter(id=song_id).first()
 
         if not song:
-            raise GraphQLError("There's no song with given ID")
+            raise CustomGraphQLError(ErrorEnum.NO_SONG)
 
         UserFavorite.objects.create(user=user, song=song).save()
 
@@ -117,22 +118,19 @@ class SongCreate(graphene.Mutation):
 
     song = graphene.Field(SongType)
 
-    # @auth_required
+    @auth_required
     @has_permission("create_song")
     def mutate(self, info, name, published_at, new_file=None):
         song = Song(name=name, published_at=published_at)
-        # song.save()
 
         if new_file is not None:
             new_file: TemporaryUploadedFile = new_file
-
-            print(new_file.temporary_file_path())
 
             destination = "public/media/songs/"
             fs = FileSystemStorage(location=destination)
             filename = fs.save(new_file.name, new_file)
 
-            audio = Audio.objects.create(duration=134, waveform="fff", file=filename)
+            audio = Audio.objects.create(duration=0, waveform=[0], file=filename)
             audio.save()
 
             song.audio_files.add(audio)

@@ -7,6 +7,7 @@ from core_api.auth.decorators import auth_required
 from core_api.models import Song, UserLibrary
 from core_api.objects.filters import SongFilter
 from core_api.objects.objects import SongType
+from core_api.utils.error_handling import CustomGraphQLError, ErrorEnum
 
 
 def discard_non_visible_songs(user_id: int):
@@ -43,6 +44,8 @@ class Query(graphene.ObjectType):
     def resolve_user_library(self, info, **kwargs):
         user = info.context.user
 
-        user_library = user.library
+        user_library = UserLibrary.objects.filter(user_id=user.id).exists()
+        if user_library is False:
+            raise CustomGraphQLError(ErrorEnum.NO_LIBRARY)
 
-        return user_library.songs.all()
+        return user.library.songs.all()
