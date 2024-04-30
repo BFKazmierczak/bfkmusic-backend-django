@@ -11,8 +11,13 @@ class TimeStampModel(models.Model):
 
 
 class Audio(TimeStampModel):
-    duration = models.FloatField(default=None)
-    waveform = models.JSONField(default=None)
+    uploaded_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, null=True, default=None
+    )
+    name = models.CharField(blank=True, max_length=60)
+    description = models.CharField(max_length=500, null=True, default=None, blank=True)
+    duration = models.FloatField(null=True, blank=True, default=None)
+    waveform = models.JSONField(null=True, blank=True, default=None)
     file = models.FileField(upload_to="songs/")
     song = models.ForeignKey(
         "core_api.Song",
@@ -42,7 +47,8 @@ class Song(TimeStampModel):
 class Comment(TimeStampModel):
     content = models.CharField(max_length=1000)
     user = models.ForeignKey(User, related_name="comments", on_delete=models.CASCADE)
-    time_range = models.CharField(max_length=50)
+    start_time = models.IntegerField()
+    end_time = models.IntegerField()
     song = models.ForeignKey(Song, related_name="comments", on_delete=models.CASCADE)
 
 
