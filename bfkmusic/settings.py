@@ -29,9 +29,9 @@ MEDIA_ROOT = BASE_DIR / "public/media"
 SECRET_KEY = os.getenv("DJANGO_SECRET")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DJANGO_DEBUG", False) == "True"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [os.getenv("DJANGO_HOST"), "127.0.0.1", "[::1]"]
 
 
 # Application definition
@@ -73,6 +73,10 @@ CACHES = {
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
+
+SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE", "False") == "True"
+CSRF_COOKIE_SECURE = os.getenv("CSRF_COOKIE_SECURE", "False") == "True"
+
 
 ROOT_URLCONF = "bfkmusic.urls"
 
