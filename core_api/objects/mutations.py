@@ -11,8 +11,8 @@ from core_api.auth.jwt_middleware import (
     make_jwt,
     revoke_jwt,
 )
-from core_api.models import Audio, Song, UserFavorite
-from core_api.objects.objects import SongType
+from core_api.models import Audio, Comment, Song, UserFavorite
+from core_api.objects.objects import AudioType, CommentType, SongType
 
 from graphene_file_upload.scalars import Upload
 from django.core.files.uploadedfile import TemporaryUploadedFile
@@ -20,7 +20,7 @@ from django.core.files.uploadedfile import TemporaryUploadedFile
 from django.core.files.storage import FileSystemStorage
 
 from core_api.utils.error_handling import CustomGraphQLError, ErrorEnum
-from core_api.utils.utils import get_object_id
+from core_api.utils.utils import get_object_id, song_in_library
 
 
 class UserRegister(graphene.Mutation):
@@ -110,6 +110,34 @@ class SongAddToFavorites(graphene.Mutation):
         return SongAddToFavorites(success=True)
 
 
+class CommentCreate(graphene.Mutation):
+    class Arguments:
+        song_id = graphene.ID(required=True)
+        content = graphene.String(required=True)
+        start_time = graphene.Int(required=True)
+        end_time = graphene.Int(required=True)
+
+    comment = graphene.Field(CommentType)
+
+    @auth_required
+    def mutate(self, info, song_id, **kwargs):
+        user = info.context.user
+
+        song_id = get_object_id(song_id)
+
+        song = Song.objects.filter(id=song_id).first()
+        if song is None:
+            raise CustomGraphQLError(ErrorEnum.NO_SONG)
+
+        if not song_in_library(user, song_id):
+            raise CustomGraphQLError(ErrorEnum.NOT_THE_OWNER)
+
+        comment = Comment(song=song, user=user, **kwargs)
+        comment.save()
+
+        return CommentCreate(comment=comment)
+
+
 class SongCreate(graphene.Mutation):
     class Arguments:
         name = graphene.String(required=True)
@@ -137,3 +165,41 @@ class SongCreate(graphene.Mutation):
             song.save()
 
         return SongCreate(song=song)
+
+
+class SongUploadVersion(graphene.Mutation):
+    class Arguments:
+        song_id = graphene.ID(required=True)
+        audio_file = Upload(required=True)
+
+    audio = graphene.Field(AudioType)
+
+    @auth_required
+    @has_permission("create_audio")
+    def mutate(self, info, song_id, audio_file, **kwargs):
+
+        user = info.context.user
+
+        song_id = get_object_id(song_id)
+
+        song = Song.objects.filter(id=song_id).first()
+        if song is None:
+            raise CustomGraphQLError(ErrorEnum.NO_SONG)
+
+        if not song_in_library(user, song_id):
+            raise CustomGraphQLError(ErrorEnum.NOT_THE_OWNER)
+
+        audio_file: TemporaryUploadedFile = audio_file
+
+        destination = "public/media/songs/"
+        fs = FileSystemStorage(location=destination)
+        filename = fs.save(audio_file.name, audio_file)
+
+        audio = Audio.objects.create(file=f"songs/{filename}", uploaded_by=user)
+
+        audio.save()
+
+        song.audio_files.add(audio)
+        song.save()
+
+        return SongUploadVersion(audio=audio)
