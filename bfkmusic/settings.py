@@ -31,7 +31,7 @@ SECRET_KEY = os.getenv("DJANGO_SECRET")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DJANGO_DEBUG", False) == "True"
 
-ALLOWED_HOSTS = [os.getenv("DJANGO_HOST"), "127.0.0.1", "[::1]"]
+ALLOWED_HOSTS = ["bfkmusic-api-production.up.railway.app", "127.0.0.1", "[::1]"]
 
 
 # Application definition
