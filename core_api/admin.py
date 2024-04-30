@@ -15,9 +15,14 @@ class AudioInline(admin.TabularInline):
     extra = 0
 
 
+class CommentInline(admin.TabularInline):
+    model = Comment
+    extra = 0
+
+
 @admin.register(Song)
 class SongAdmin(admin.ModelAdmin):
-    inlines = [AudioInline]
+    inlines = [CommentInline, AudioInline]
 
 
 admin.site.register(Audio)
