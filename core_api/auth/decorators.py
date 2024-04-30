@@ -40,7 +40,7 @@ def has_permission(perm: str):
             if not user.has_perm(perm, user) and group_has_perm is False:
                 raise GraphQLError("Permission denied")
 
-            func(self, info, **kwargs)
+            return func(self, info, **kwargs)
 
         return wrapper
 
