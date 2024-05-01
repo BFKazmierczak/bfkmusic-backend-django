@@ -32,7 +32,7 @@ SECRET_KEY = os.getenv("DJANGO_SECRET")
 DEBUG = os.getenv("DJANGO_DEBUG", False) == "True"
 
 ALLOWED_HOSTS = ["bfkmusic-api-production.up.railway.app", "127.0.0.1", "[::1]"]
-
+CSRF_TRUSTED_ORIGINS = ["https://bfkmusic-api-production.up.railway.app"]
 
 # Application definition
 
