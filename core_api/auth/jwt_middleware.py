@@ -79,6 +79,8 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
 
         user = AnonymousUser()
         if token is not None:
+            token = token.split("Bearer ")[1]
+
             try:
                 user_jwt = jwt.decode(token, settings.JWT_SECRET, algorithms="HS256")
                 jti = user_jwt["jti"]

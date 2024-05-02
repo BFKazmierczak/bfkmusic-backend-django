@@ -57,7 +57,7 @@ class UserLogin(graphene.Mutation):
         username = graphene.String(required=True)
         password = graphene.String(required=True)
 
-    token = graphene.Field(graphene.JSONString)
+    token = graphene.String()
 
     def mutate(self, info, **kwargs):
         token = None
