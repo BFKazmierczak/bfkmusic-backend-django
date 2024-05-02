@@ -19,10 +19,13 @@ settings = LazySettings()
 
 
 def make_jwt(user: User):
-    expiration_date = datetime.now() + timedelta(hours=1)
+    now = datetime.now()
+
+    expiration_date = now + timedelta(hours=1)
 
     payload = {
         "iss": "bfkmusic",
+        "iat": now,
         "exp": expiration_date,
         "context": {
             "username": user.username,
