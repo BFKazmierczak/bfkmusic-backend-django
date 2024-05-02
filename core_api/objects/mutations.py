@@ -12,7 +12,7 @@ from core_api.auth.jwt_middleware import (
     revoke_jwt,
 )
 from core_api.models import Audio, Comment, Song, UserFavorite
-from core_api.objects.objects import AudioType, CommentType, SongType
+from core_api.objects.objects import AudioType, CommentType, SongType, UserType
 
 from graphene_file_upload.scalars import Upload
 from django.core.files.uploadedfile import TemporaryUploadedFile
@@ -58,6 +58,7 @@ class UserLogin(graphene.Mutation):
         password = graphene.String(required=True)
 
     token = graphene.String()
+    user = graphene.Field(UserType)
 
     def mutate(self, info, **kwargs):
         token = None
@@ -68,7 +69,7 @@ class UserLogin(graphene.Mutation):
 
         token = make_jwt(user)
 
-        return UserLogin(token=token)
+        return UserLogin(token=token, user=user)
 
 
 class UserLogout(graphene.Mutation):
