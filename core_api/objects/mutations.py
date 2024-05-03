@@ -87,11 +87,12 @@ class UserLogout(graphene.Mutation):
         return UserLogout(success=success)
 
 
-class SongAddToFavorites(graphene.Mutation):
+class SongManageFavorite(graphene.Mutation):
     class Arguments:
         song_id = graphene.ID(required=True)
 
     success = graphene.Boolean()
+    song = graphene.Field(SongType)
 
     @auth_required
     @has_permission("add_to_favorites")
@@ -106,9 +107,13 @@ class SongAddToFavorites(graphene.Mutation):
         if not song:
             raise CustomGraphQLError(ErrorEnum.NO_SONG)
 
-        UserFavorite.objects.create(user=user, song=song).save()
+        favorite_song = UserFavorite.objects.filter(user=user, song=song).first()
+        if favorite_song is None:
+            favorite_song = UserFavorite.objects.create(user=user, song=song).save()
+        else:
+            UserFavorite.objects.delete(favorite_song)
 
-        return SongAddToFavorites(success=True)
+        return SongManageFavorite(success=True, song=favorite_song)
 
 
 class CommentCreate(graphene.Mutation):

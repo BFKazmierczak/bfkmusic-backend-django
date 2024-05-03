@@ -2,7 +2,7 @@ import graphene
 
 from core_api.objects.mutations import (
     CommentCreate,
-    SongAddToFavorites,
+    SongManageFavorite,
     SongCreate,
     SongUploadVersion,
     UserLogin,
@@ -13,7 +13,7 @@ from core_api.objects.mutations import (
 
 class Mutation(graphene.ObjectType):
     song_create = SongCreate.Field()
-    song_add_to_favorites = SongAddToFavorites.Field()
+    song_manage_favorite = SongManageFavorite.Field()
     audio_upload_version = SongUploadVersion.Field()
     comment_create = CommentCreate.Field()
     user_register = UserRegister.Field()
