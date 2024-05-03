@@ -1,7 +1,6 @@
 from genericpath import exists
 import graphene
 from graphene_django import DjangoObjectType
-import graphene_django_optimizer as gql_optimizer
 
 from core_api.models import Audio, Comment, Song, UserFavorite, UserLibrary
 from django.contrib.auth.models import User
@@ -47,7 +46,6 @@ class SongType(DjangoObjectType):
 
         return song_in_library(user, self.id)
 
-    @gql_optimizer.resolver_hints(select_related=("favorited_by"))
     def resolve_is_favorite(self, info):
         user = info.context.user
 
