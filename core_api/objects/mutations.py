@@ -107,13 +107,16 @@ class SongManageFavorite(graphene.Mutation):
         if not song:
             raise CustomGraphQLError(ErrorEnum.NO_SONG)
 
-        favorite_song = UserFavorite.objects.filter(user=user, song=song).first()
-        if favorite_song is None:
-            favorite_song = UserFavorite.objects.create(user=user, song=song).save()
+        favorite_instance = UserFavorite.objects.filter(user=user, song=song).first()
+        if favorite_instance is None:
+            favorite_instance = UserFavorite.objects.create(user=user, song=song)
+            favorite_instance.save()
         else:
-            UserFavorite.objects.delete(favorite_song)
+            UserFavorite.delete(favorite_instance)
 
-        return SongManageFavorite(success=True, song=favorite_song)
+        song = Song.objects.filter(id=song_id).first()
+
+        return SongManageFavorite(success=True, song=song)
 
 
 class CommentCreate(graphene.Mutation):
