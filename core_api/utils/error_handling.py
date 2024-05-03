@@ -57,6 +57,11 @@ class ErrorEnum(graphene.Enum):
         },
     }
 
+    SONG_NO_ACCESS = {
+        "message": "Access to song denied",
+        "extensions": {"code": "SONG_NO_ACCESS", "toast": True, "redirect": True},
+    }
+
 
 class CustomGraphQLError(GraphQLError):
     def __init__(self, error: ErrorEnum) -> None:
