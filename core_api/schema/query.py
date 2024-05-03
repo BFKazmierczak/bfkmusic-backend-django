@@ -22,7 +22,7 @@ class Query(graphene.ObjectType):
     favorite_songs = DjangoFilterConnectionField(SongType, filterset_class=SongFilter)
     user_library = DjangoFilterConnectionField(SongType, filterset_class=SongFilter)
 
-    def resolve_all_songs(self, info):
+    def resolve_all_songs(self, info, **kwargs):
         user = info.context.user
 
         if not user.is_authenticated:
@@ -33,7 +33,7 @@ class Query(graphene.ObjectType):
         return Song.objects.filter(query)
 
     @auth_required
-    def resolve_favorite_songs(self, info):
+    def resolve_favorite_songs(self, info, **kwargs):
         user = info.context.user
 
         query = discard_non_visible_songs(user.id) & Q(favorited_by__user_id=user.id)
