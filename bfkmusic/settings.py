@@ -40,6 +40,8 @@ DEBUG = os.getenv("DJANGO_DEBUG", False) == "True"
 ALLOWED_HOSTS = env.list("DJANGO_HOSTS")
 CSRF_TRUSTED_ORIGINS = env.list("DJANGO_TRUSTED_ORIGINS")
 
+CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", [])
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -53,12 +55,14 @@ INSTALLED_APPS = [
     "core_api.apps.CoreApiConfig",
     "graphene_django",
     "django_filters",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
