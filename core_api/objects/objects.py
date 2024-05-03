@@ -1,8 +1,9 @@
 from genericpath import exists
 import graphene
 from graphene_django import DjangoObjectType
+import graphene_django_optimizer as gql_optimizer
 
-from core_api.models import Audio, Comment, Song, UserLibrary
+from core_api.models import Audio, Comment, Song, UserFavorite, UserLibrary
 from django.contrib.auth.models import User
 
 from core_api.utils.utils import song_in_library
@@ -21,6 +22,8 @@ class SongType(DjangoObjectType):
 
     audio_files = graphene.List("core_api.objects.objects.AudioType")
     comments = graphene.List("core_api.objects.objects.CommentType")
+    in_library = graphene.Boolean()
+    is_favorite = graphene.Boolean()
 
     def resolve_audio_files(self, info):
         user = info.context.user
@@ -34,10 +37,24 @@ class SongType(DjangoObjectType):
 
         user = info.context.user
 
-        if song_in_library(user, self.id) is False:
+        if not song_in_library(user, self.id):
             return []
 
         return self.comments.all()
+
+    def resolve_in_library(self, info):
+        user = info.context.user
+
+        return song_in_library(user, self.id)
+
+    @gql_optimizer.resolver_hints(select_related=("favorited_by"))
+    def resolve_is_favorite(self, info):
+        user = info.context.user
+
+        if not user.is_authenticated:
+            return False
+
+        return self.favorited_by.filter(user_id=user.id).exists()
 
 
 class CommentType(DjangoObjectType):

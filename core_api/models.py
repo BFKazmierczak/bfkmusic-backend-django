@@ -39,10 +39,6 @@ class Song(TimeStampModel):
     description = models.CharField(max_length=500, default=None)
     non_owner_visible = models.BooleanField(default=True)
 
-    @property
-    def is_favorite(self):
-        return self.favorited_by.exists()
-
 
 class Comment(TimeStampModel):
     content = models.CharField(max_length=1000)
@@ -56,7 +52,7 @@ class UserLibrary(models.Model):
     class Meta:
         verbose_name_plural = "User libraries"
 
-    songs = models.ManyToManyField(Song, blank=True)
+    songs = models.ManyToManyField(Song, related_name="libraries", blank=True)
     user = models.OneToOneField(User, related_name="library", on_delete=models.CASCADE)
 
 
