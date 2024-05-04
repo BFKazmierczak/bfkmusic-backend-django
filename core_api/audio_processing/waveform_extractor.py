@@ -20,6 +20,6 @@ def extract_peaks(audio_path: str):
         start_sample = i * samples_per_window
         end_sample = start_sample + samples_per_window
         amplitude = np.mean(np.abs(y[start_sample:end_sample]))
-        amplitudes.append(str(amplitude))
+        amplitudes.append(float(amplitude))
 
     return amplitudes, duration
