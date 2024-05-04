@@ -24,7 +24,7 @@ def make_jwt(user: User):
     tz = pytz.timezone(settings.TIME_ZONE)
     now = datetime.now(tz=tz)
 
-    expiration_date = now + timedelta(seconds=30)
+    expiration_date = now + timedelta(hours=1)
 
     payload = {
         "iss": "bfkmusic",
