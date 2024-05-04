@@ -21,7 +21,7 @@ settings = LazySettings()
 
 def make_jwt(user: User):
 
-    tz = pytz.timezone("CET")
+    tz = pytz.timezone(settings.TIME_ZONE)
     now = datetime.now(tz=tz)
 
     expiration_date = now + timedelta(seconds=30)
