@@ -30,7 +30,7 @@ class SongType(DjangoObjectType):
         if song_in_library(user, self.id) is False:
             return [self.audio_files.order_by("created_at").first()]
 
-        return self.audio_files.all()
+        return self.audio_files.order_by("-created_at").all()
 
     def resolve_comments(self, info):
 
