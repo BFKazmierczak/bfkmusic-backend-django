@@ -14,14 +14,17 @@ from django.conf import LazySettings
 from django.contrib.auth.middleware import get_user
 
 from django_redis import get_redis_connection
+import pytz
 
 settings = LazySettings()
 
 
 def make_jwt(user: User):
-    now = datetime.now()
 
-    expiration_date = now + timedelta(hours=1)
+    tz = pytz.timezone("CET")
+    now = datetime.now(tz=tz)
+
+    expiration_date = now + timedelta(seconds=30)
 
     payload = {
         "iss": "bfkmusic",
@@ -85,6 +88,7 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
             token = token.split("Bearer ")[1]
 
             try:
+                print(token)
                 user_jwt = jwt.decode(token, settings.JWT_SECRET, algorithms="HS256")
                 jti = user_jwt["jti"]
 

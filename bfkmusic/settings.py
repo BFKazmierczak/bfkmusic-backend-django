@@ -174,3 +174,6 @@ GRAPHENE = {"SCHEMA": "core_api.schema.schema"}
 
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
+
+TIME_ZONE = "CET"
