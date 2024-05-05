@@ -28,6 +28,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 MEDIA_ROOT = BASE_DIR / "public/media"
 MEDIA_URL = "media/"
 
+songs_directory = os.path.join(BASE_DIR, "public", "media", "songs")
+
+if not os.path.exists(songs_directory):
+    os.makedirs(songs_directory)
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
