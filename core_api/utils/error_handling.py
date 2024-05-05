@@ -49,6 +49,15 @@ class ErrorEnum(graphene.Enum):
         },
     }
 
+    NO_AUDIO = {
+        "message": "No audio with given ID",
+        "extensions": {
+            "code": "NO_AUDIO",
+            "toast": True,
+            "render": "Taki plik audio nie istnieje",
+        },
+    }
+
     NOT_THE_OWNER = {
         "message": "No permission to modify this object",
         "extensions": {

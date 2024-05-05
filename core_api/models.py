@@ -42,10 +42,13 @@ class Song(TimeStampModel):
 
 class Comment(TimeStampModel):
     content = models.CharField(max_length=1000)
-    user = models.ForeignKey(User, related_name="comments", on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name="comments", on_delete=models.DO_NOTHING)
     start_time = models.IntegerField()
     end_time = models.IntegerField()
-    song = models.ForeignKey(Song, related_name="comments", on_delete=models.CASCADE)
+    song = models.ForeignKey(Song, related_name="comments", on_delete=models.DO_NOTHING)
+    audio = models.ForeignKey(
+        Audio, related_name="comments", on_delete=models.DO_NOTHING
+    )
 
 
 class UserLibrary(models.Model):

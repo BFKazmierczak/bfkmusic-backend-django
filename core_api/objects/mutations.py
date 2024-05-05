@@ -122,6 +122,7 @@ class SongManageFavorite(graphene.Mutation):
 class CommentCreate(graphene.Mutation):
     class Arguments:
         song_id = graphene.ID(required=True)
+        audio_id = graphene.ID(required=True)
         content = graphene.String(required=True)
         start_time = graphene.Int(required=True)
         end_time = graphene.Int(required=True)
@@ -129,10 +130,11 @@ class CommentCreate(graphene.Mutation):
     comment = graphene.Field(CommentType)
 
     @auth_required
-    def mutate(self, info, song_id, **kwargs):
+    def mutate(self, info, song_id, audio_id, **kwargs):
         user = info.context.user
 
         song_id = get_object_id(song_id)
+        audio_id = get_object_id(audio_id)
 
         song = Song.objects.filter(id=song_id).first()
         if song is None:
@@ -141,7 +143,11 @@ class CommentCreate(graphene.Mutation):
         if not song_in_library(user, song_id):
             raise CustomGraphQLError(ErrorEnum.NOT_THE_OWNER)
 
-        comment = Comment(song=song, user=user, **kwargs)
+        audio = Audio.objects.filter(id=audio_id).first()
+        if audio is None:
+            raise CustomGraphQLError(ErrorEnum.NO_AUDIO)
+
+        comment = Comment(song=song, audio=audio, user=user, **kwargs)
         comment.save()
 
         return CommentCreate(comment=comment)

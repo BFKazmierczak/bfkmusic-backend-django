@@ -1,8 +1,7 @@
-from genericpath import exists
 import graphene
 from graphene_django import DjangoObjectType
 
-from core_api.models import Audio, Comment, Song, UserFavorite, UserLibrary
+from core_api.models import Audio, Comment, Song, UserLibrary
 from django.contrib.auth.models import User
 
 from core_api.utils.utils import song_in_library
@@ -13,14 +12,26 @@ class AudioType(DjangoObjectType):
         model = Audio
         interfaces = (graphene.relay.Node,)
 
+    comments = graphene.List("core_api.objects.objects.CommentType")
+
+    def resolve_comments(self, info):
+        user = info.context.user
+
+        print(self.song)
+
+        if not song_in_library(user, self.song.id):
+            return []
+
+        return self.comments.all()
+
 
 class SongType(DjangoObjectType):
     class Meta:
         model = Song
         interfaces = (graphene.relay.Node,)
+        exclude = ("comments",)
 
     audio_files = graphene.List("core_api.objects.objects.AudioType")
-    comments = graphene.List("core_api.objects.objects.CommentType")
     in_library = graphene.Boolean()
     is_favorite = graphene.Boolean()
 
@@ -31,15 +42,6 @@ class SongType(DjangoObjectType):
             return [self.audio_files.order_by("created_at").first()]
 
         return self.audio_files.order_by("-created_at").all()
-
-    def resolve_comments(self, info):
-
-        user = info.context.user
-
-        if not song_in_library(user, self.id):
-            return []
-
-        return self.comments.all()
 
     def resolve_in_library(self, info):
         user = info.context.user

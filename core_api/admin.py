@@ -25,7 +25,11 @@ class SongAdmin(admin.ModelAdmin):
     inlines = [CommentInline, AudioInline]
 
 
-admin.site.register(Audio)
+@admin.register(Audio)
+class AudioAdmin(admin.ModelAdmin):
+    inlines = [CommentInline]
+
+
 admin.site.register(Comment)
 admin.site.register(UserFavorite, UserFavoriteAdmin)
 admin.site.register(UserLibrary, UserLibraryAdmin)
