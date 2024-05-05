@@ -26,7 +26,7 @@ env.read_env()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_ROOT = BASE_DIR / "media/"
 MEDIA_URL = "media/"
 
 print(BASE_DIR, MEDIA_ROOT)
