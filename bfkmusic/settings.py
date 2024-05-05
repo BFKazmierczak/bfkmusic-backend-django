@@ -25,8 +25,11 @@ env.read_env()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-MEDIA_ROOT = os.environ["RAILWAY_VOLUME_MOUNT_PATH"]
+
+MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_URL = "media/"
+
+print(BASE_DIR, MEDIA_ROOT)
 
 songs_directory = os.path.join(MEDIA_ROOT, "songs")
 
