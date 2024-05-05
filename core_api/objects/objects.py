@@ -12,7 +12,7 @@ class AudioType(DjangoObjectType):
         model = Audio
         interfaces = (graphene.relay.Node,)
 
-    comments = graphene.List("core_api.objects.objects.CommentType")
+    comments = graphene.NonNull(graphene.List("core_api.objects.objects.CommentType"))
 
     def resolve_comments(self, info):
         user = info.context.user
@@ -29,7 +29,7 @@ class SongType(DjangoObjectType):
         interfaces = (graphene.relay.Node,)
         exclude = ("comments",)
 
-    audio_files = graphene.List("core_api.objects.objects.AudioType")
+    audio_files = graphene.NonNull(graphene.List("core_api.objects.objects.AudioType"))
     in_library = graphene.Boolean()
     is_favorite = graphene.Boolean()
 
