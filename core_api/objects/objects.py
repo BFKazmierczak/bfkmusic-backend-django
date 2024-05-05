@@ -17,8 +17,6 @@ class AudioType(DjangoObjectType):
     def resolve_comments(self, info):
         user = info.context.user
 
-        print(self.song)
-
         if not song_in_library(user, self.song.id):
             return []
 
