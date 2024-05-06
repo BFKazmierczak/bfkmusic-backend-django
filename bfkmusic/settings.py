@@ -26,9 +26,6 @@ env.read_env()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-MEDIA_ROOT = BASE_DIR / "media/"
-
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
@@ -124,20 +121,32 @@ DATABASES = {
     }
 }
 
-DEFAULT_FILE_STORAGE = "core_api.s3utils.MediaS3BotoStorage"
-STATICFILES_STORAGE = "core_api.s3utils.StaticS3BotoStorage"
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {"location": "media"},
+    },
+    "staticfiles": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {"location": "static"},
+    },
+}
 
-AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+
+AWS_S3_ACCESS_KEY_ID = os.getenv("AWS_S3_ACCESS_KEY_ID")
+AWS_S3_SECRET_ACCESS_KEY = os.getenv("AWS_S3_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
+AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME")
+AWS_QUERYSTRING_EXPIRE = 3 * 60
+
+MEDIA_ROOT = BASE_DIR / "media"
+STATIC_ROOT = BASE_DIR / "static"
 
 S3_URL = "https://%s.s3.eu-central-1.amazonaws.com" % AWS_STORAGE_BUCKET_NAME
 STATIC_DIRECTORY = "/static/"
 MEDIA_DIRECTORY = "/media/"
 STATIC_URL = S3_URL + STATIC_DIRECTORY
 MEDIA_URL = S3_URL + MEDIA_DIRECTORY
-
-print(STATIC_URL, MEDIA_URL)
 
 AUTHENTICATION_BACKENDS = ["core_api.auth.custom_auth.CustomAuthBackend"]
 
@@ -191,20 +200,20 @@ GRAPHENE = {"SCHEMA": "core_api.schema.schema"}
 TIME_ZONE = "CET"
 
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
-        "console": {
-            "level": "DEBUG",
-            "class": "logging.StreamHandler",
-        },
-    },
-    "loggers": {
-        "django": {
-            "handlers": ["console"],
-            "level": "DEBUG",
-            "propagate": True,
-        },
-    },
-}
+# LOGGING = {
+#     "version": 1,
+#     "disable_existing_loggers": False,
+#     "handlers": {
+#         "console": {
+#             "level": "DEBUG",
+#             "class": "logging.StreamHandler",
+#         },
+#     },
+#     "loggers": {
+#         "django": {
+#             "handlers": ["console"],
+#             "level": "DEBUG",
+#             "propagate": True,
+#         },
+#     },
+# }
