@@ -27,14 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 MEDIA_ROOT = BASE_DIR / "media/"
-MEDIA_URL = "media/"
 
-print(BASE_DIR, MEDIA_ROOT)
-
-songs_directory = os.path.join(MEDIA_ROOT, "songs")
-
-if not os.path.exists(songs_directory):
-    os.makedirs(songs_directory)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -53,7 +46,6 @@ CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", [])
 # Application definition
 
 INSTALLED_APPS = [
-    "whitenoise.runserver_nostatic",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -68,7 +60,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -133,6 +124,21 @@ DATABASES = {
     }
 }
 
+DEFAULT_FILE_STORAGE = "core_api.s3utils.MediaS3BotoStorage"
+STATICFILES_STORAGE = "core_api.s3utils.StaticS3BotoStorage"
+
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
+
+S3_URL = "https://%s.s3.eu-central-1.amazonaws.com" % AWS_STORAGE_BUCKET_NAME
+STATIC_DIRECTORY = "/static/"
+MEDIA_DIRECTORY = "/media/"
+STATIC_URL = S3_URL + STATIC_DIRECTORY
+MEDIA_URL = S3_URL + MEDIA_DIRECTORY
+
+print(STATIC_URL, MEDIA_URL)
+
 AUTHENTICATION_BACKENDS = ["core_api.auth.custom_auth.CustomAuthBackend"]
 
 
@@ -170,8 +176,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = "static/"
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
@@ -181,7 +185,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 GRAPHENE = {"SCHEMA": "core_api.schema.schema"}
 
 
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
+# STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 
 TIME_ZONE = "CET"
